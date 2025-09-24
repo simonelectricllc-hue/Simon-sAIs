@@ -8,7 +8,7 @@ if (!connStr) {
 
 const pool = new Pool({
   connectionString: connStr,                 // e.g. ...postgres?sslmode=require
-  ssl: { rejectUnauthorized: false },        // required by Supabase from serverless
+  ssl: { rejectUnauthorized: false },        // needed for Supabase from serverless
 });
 
 export async function query<T = any>(text: string, params?: any[]): Promise<{ rows: T[] }> {
@@ -17,7 +17,6 @@ export async function query<T = any>(text: string, params?: any[]): Promise<{ ro
     const res = await client.query(text, params);
     return { rows: res.rows as T[] };
   } catch (err) {
-    // log once on the server so we can see it in Vercel → Functions logs
     console.error('DB query error:', err);
     throw err;
   } finally {
