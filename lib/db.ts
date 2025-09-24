@@ -6,22 +6,18 @@ if (!connStr) {
   console.error('DATABASE_URL is missing');
 }
 
-const pool = new Pool({
-  connectionString: connStr,                 // e.g. ...postgres?sslmode=require
-  ssl: { rejectUnauthorized: false },        // needed for Supabase from serverless
+export const pool = new Pool({
+  connectionString: connStr,                 // include ?sslmode=require in the URL
+  ssl: { rejectUnauthorized: false },        // accept Supabase's cert chain from serverless
 });
 
-export async function query<T = any>(text: string, params?: any[]): Promise<{ rows: T[] }> {
+export async function query<T = any>(text: string, params?: any[]) {
   const client = await pool.connect();
   try {
     const res = await client.query(text, params);
     return { rows: res.rows as T[] };
-  } catch (err) {
-    console.error('DB query error:', err);
-    throw err;
   } finally {
     client.release();
   }
 }
-
 export default pool;
