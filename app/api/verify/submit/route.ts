@@ -1,6 +1,7 @@
+// app/api/verify/submit/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { supabaseAdmin } from '@/lib/supabase';
+import { supabaseAdmin } from '../../../../lib/supabase';
 
 const Body = z.object({
   trade: z.enum(['electric', 'plumbing', 'hvac', 'gc']),
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest) {
     const { data: inserted, error } = await supabaseAdmin
       .from('licenses')
       .insert({
-        user_id: null,               // fill later if you add auth
+        user_id: null,               // add real user_id if you add auth
         trade: data.trade,
         state: data.state.toUpperCase(),
         license_number: data.license_number,
