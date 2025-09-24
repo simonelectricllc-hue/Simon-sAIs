@@ -1,15 +1,13 @@
 // lib/db.ts
 import { Pool } from 'pg';
 
-// Allow Supabase pooler certs from serverless environments
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
 const connStr = process.env.DATABASE_URL || '';
 if (!connStr) console.error('DATABASE_URL is missing');
 
+// Accept Supabase Pooler certs from serverless (no "require" key here)
 export const pool = new Pool({
-  connectionString: connStr,                       // must include ?sslmode=require
-  ssl: { require: true, rejectUnauthorized: false }
+  connectionString: connStr,          // must include ?sslmode=require in the URL
+  ssl: { rejectUnauthorized: false }, // correct TS shape for pg TLS options
 });
 
 export async function query<T = any>(text: string, params?: any[]) {
