@@ -1,32 +1,20 @@
-import { NextResponse } from "next/server";
-import { Pool } from "pg";
+// app/api/dbcheck/route.ts
+import { NextResponse } from 'next/server';
+import { supabaseAdmin } from '../../../lib/supabase';
 
 export async function GET() {
   try {
-    const raw = process.env.DATABASE_URL;
-    if (!raw) {
-      throw new Error("DATABASE_URL is not set");
-    }
+    const { count, error } = await supabaseAdmin
+      .from('licenses')
+      .select('*', { count: 'exact', head: true });
 
-    const pool = new Pool({
-      connectionString: raw,
-      ssl: {
-        rejectUnauthorized: false, // ✅ Fixes "self-signed certificate" error
-      },
-    });
+    if (error) throw error;
 
-    const client = await pool.connect();
-    const result = await client.query("SELECT NOW()");
-    client.release();
-
-    return NextResponse.json({
-      ok: true,
-      time: result.rows[0],
-    });
-  } catch (err: any) {
-    return NextResponse.json({
-      ok: false,
-      error: err.message,
-    });
+    return NextResponse.json({ ok: true, table: 'licenses', count: count ?? 0 });
+  } catch (e: any) {
+    return NextResponse.json(
+      { ok: false, error: e?.message || String(e) },
+      { status: 500 }
+    );
   }
 }
